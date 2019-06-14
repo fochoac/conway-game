@@ -10,7 +10,7 @@ import (
 )
 
 func main() {
-
+	defer util.TimeTrack(time.Now(), "main")
 	generations := flag.Int("generations", 10, "default")
 	animated := flag.Bool("animated", false, "default")
 	print := flag.Bool("print", true, "default")
@@ -20,7 +20,7 @@ func main() {
 }
 
 func runGame(generations int, print bool, animated bool) {
-	defer util.TimeTrack(time.Now(), "runGame")
+
 	grid := getTestData()
 	if print {
 		fmt.Println("Input ")
