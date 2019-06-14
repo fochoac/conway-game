@@ -11,9 +11,9 @@ import (
 
 func main() {
 	defer util.TimeTrack(time.Now(), "main")
-	generations := flag.Int("generations", 10, "default")
-	animated := flag.Bool("animated", false, "default")
-	print := flag.Bool("print", true, "default")
+	generations := flag.Int("generations", 10, "Generations by default: 10")
+	animated := flag.Bool("animated", false, "Run game with animation. Default: false")
+	print := flag.Bool("print", true, "Print of grid for each generation. Default:true ")
 	flag.Parse()
 	runGame(*generations, *print, *animated)
 

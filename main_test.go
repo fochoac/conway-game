@@ -5,5 +5,5 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	runGame(10)
+	main()
 }
