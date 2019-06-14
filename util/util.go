@@ -3,6 +3,7 @@ package util
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"math/rand"
 	"os"
 	"os/exec"
@@ -11,10 +12,10 @@ import (
 )
 
 // LIFE define if the element is alive
-const LIFE = "*"
+const LIFE int8 = '*'
 
 // DECEASED define if the element is died
-const DECEASED = "."
+const DECEASED int8 = '.'
 
 // GetDivMod get the mod between two values
 func GetDivMod(x int, y int) int {
@@ -22,10 +23,10 @@ func GetDivMod(x int, y int) int {
 }
 
 // PrintGrid is used for print the grid
-func PrintGrid(matrix [][]string) {
+func PrintGrid(matrix [][]int8) {
 	for i := 0; i < len(matrix); i++ {
 		for j := 0; j < len(matrix[i]); j++ {
-			fmt.Print(matrix[i][j])
+			fmt.Print(string(matrix[i][j]))
 
 		}
 		fmt.Println()
@@ -34,27 +35,29 @@ func PrintGrid(matrix [][]string) {
 }
 
 // CopyGrid is used for copy the grid
-func CopyGrid(array [][]string) [][]string {
-	duplicate := make([][]string, len(array))
+func CopyGrid(array [][]int8) [][]int8 {
+	duplicate := make([][]int8, len(array))
 	for i := range array {
-		duplicate[i] = make([]string, len(array[i]))
+		duplicate[i] = make([]int8, len(array[i]))
 		copy(duplicate[i], array[i])
 	}
+
 	return duplicate
 }
 
+/*
 // GenerateRandGrid is used for generate randomic grid od string
 func GenerateRandGrid(row int, col int) [][]string {
 	fmt.Println("hola")
 	array := make([][]string, row)
 	for i := range array {
 
-		array[i] = newRandomStringArray(col)
+			array[i] = newRandomStringArray(col)
 	}
 
 	return array
 }
-
+*/
 // GetValueFromConsole is used for get value string from console
 func GetValueFromConsole(message string) string {
 	reader := bufio.NewReader(os.Stdin)
@@ -99,6 +102,7 @@ func newRandomBoolArray(col int) []bool {
 	return row
 }
 
+/*
 func newRandomStringArray(col int) []string {
 	row := make([]string, col)
 	random := newRandom()
@@ -112,13 +116,14 @@ func newRandomStringArray(col int) []string {
 	}
 	return row
 }
-
+*/
 type boolgen struct {
 	src       rand.Source
 	cache     int64
 	remaining int
 }
 
+// The Euclidean Algorithm
 func getFloorDiv(x int, y int) int {
 	r := x / y
 	if (x^y) < 0 && (r*y != x) {
@@ -141,4 +146,9 @@ func init() {
 		cmd.Stdout = os.Stdout
 		cmd.Run()
 	}
+}
+// TimeTrack get duration of execution of function
+func TimeTrack(start time.Time, name string) {
+	elapsed := time.Since(start)
+	log.Printf("%s took %s", name, elapsed)
 }
