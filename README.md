@@ -12,6 +12,11 @@ The conway game was designed by Horton Conway in 1970.
 
 ## Use
 
-go run main.go numerGenerations ?animated(true)
+go run main.go -generations=xxx -animated -print
+
+Default values
+generations: 500
+animated = false
+print =true
 
 Enjoy!!

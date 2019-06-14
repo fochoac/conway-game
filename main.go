@@ -11,7 +11,7 @@ import (
 
 func main() {
 
-	generations := flag.Int("generations", 50, "default")
+	generations := flag.Int("generations", 10, "default")
 	animated := flag.Bool("animated", false, "default")
 	print := flag.Bool("print", true, "default")
 	flag.Parse()
