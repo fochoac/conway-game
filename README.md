@@ -14,9 +14,9 @@ The conway game was designed by Horton Conway in 1970.
 
 go run main.go -generations=xxx -animated 
 
-Default values
-generations: 500
-animated = false
+Default values:
+- generations: 500
+- animated = false
 
 
 Enjoy!!
