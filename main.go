@@ -22,11 +22,11 @@ var superGrid [][]uint8
 
 func main() {
 	defer util.TimeTrack(time.Now(), "main")
-	generations := flag.Int("generations", 10, "Generations by default: 10")
+	generations := flag.Int("generations", 500, "Generations by default: 10")
 	animated := flag.Bool("animated", false, "Run game with animation. Default: false")
-	print := flag.Bool("print", true, "Print of grid for each generation. Default:true ")
+
 	flag.Parse()
-	gridResult := runGame(*generations, *print, *animated)
+	gridResult := runGame(*generations)
 	if *animated {
 		printAnimatedResult(gridResult)
 	} else {
@@ -35,7 +35,7 @@ func main() {
 
 }
 
-func runGame(generations int, print bool, animated bool) []Generation {
+func runGame(generations int) []Generation {
 
 	gridGenerations := make([]Generation, generations+1)
 	grid := getTestData()
@@ -90,7 +90,6 @@ func printResult(matrix []Generation) {
 	for _, generation := range matrix {
 		if generation.id == 0 {
 			sb.WriteString("Init \n")
-
 			sb.WriteString(util.PrintGrid(generation.matrix))
 			continue
 		}
