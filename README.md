@@ -18,5 +18,12 @@ Default values:
 - generations: 500
 - animated = false
 
+## Production Enviroment
+
+First, generate the executable for the plataform:
+
+- go build main.go
+
+Next, execute the test.
 
 Enjoy!!
