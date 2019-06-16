@@ -8,37 +8,50 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strings"
 	"time"
 )
 
 // LIFE define if the element is alive
-const LIFE int8 = '*'
+const LIFE uint8 = '*'
 
 // DECEASED define if the element is died
-const DECEASED int8 = '.'
+const DECEASED uint8 = '.'
 
 // GetDivMod get the mod between two values
 func GetDivMod(x int, y int) int {
 	return x - getFloorDiv(x, y)*y
 }
 
-// PrintGrid is used for print the grid
-func PrintGrid(matrix [][]int8) {
-	for i := 0; i < len(matrix); i++ {
-		for j := 0; j < len(matrix[i]); j++ {
-			fmt.Print(string(matrix[i][j]))
-
-		}
-		fmt.Println()
-
+func GetFloorMod(a int, b int) int {
+	m := a % b
+	if (a^b) >= 0 || m == 0 {
+		return m
+	} else {
+		return b + m
 	}
 }
 
+// PrintGrid is used for print the grid
+func PrintGrid(matrix [][]uint8) string {
+	var cadena strings.Builder
+	rows := len(matrix)
+	cols := len(matrix[0])
+	for i := 0; i < rows; i++ {
+		for j := 0; j < cols; j++ {
+			cadena.WriteString(string(matrix[i][j]))
+		}
+		cadena.WriteString("\n")
+	}
+	cadena.WriteString("\n")
+	return cadena.String()
+}
+
 // CopyGrid is used for copy the grid
-func CopyGrid(array [][]int8) [][]int8 {
-	duplicate := make([][]int8, len(array))
+func CopyGrid(array [][]uint8) [][]uint8 {
+	duplicate := make([][]uint8, len(array))
 	for i := range array {
-		duplicate[i] = make([]int8, len(array[i]))
+		duplicate[i] = make([]uint8, len(array[i]))
 		copy(duplicate[i], array[i])
 	}
 
@@ -147,8 +160,10 @@ func init() {
 		cmd.Run()
 	}
 }
+
 // TimeTrack get duration of execution of function
 func TimeTrack(start time.Time, name string) {
 	elapsed := time.Since(start)
+	log.Printf("%s started %s", name, start)
 	log.Printf("%s took %s", name, elapsed)
 }

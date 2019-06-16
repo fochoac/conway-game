@@ -4,10 +4,21 @@ import (
 	"flag"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/fochoac/conway-game/util"
 )
+
+// Gneeration is used for generate the array of generations
+type Generation struct {
+	id     int
+	matrix [][]uint8
+}
+
+var cols int
+var rows int
+var superGrid [][]uint8
 
 func main() {
 	defer util.TimeTrack(time.Now(), "main")
@@ -15,72 +26,99 @@ func main() {
 	animated := flag.Bool("animated", false, "Run game with animation. Default: false")
 	print := flag.Bool("print", true, "Print of grid for each generation. Default:true ")
 	flag.Parse()
-	runGame(*generations, *print, *animated)
+	gridResult := runGame(*generations, *print, *animated)
+	if *animated {
+		printAnimatedResult(gridResult)
+	} else {
+		printResult(gridResult)
+	}
 
 }
 
-func runGame(generations int, print bool, animated bool) {
+func runGame(generations int, print bool, animated bool) []Generation {
 
+	gridGenerations := make([]Generation, generations+1)
 	grid := getTestData()
-	if print {
-		fmt.Println("Input ")
-		util.PrintGrid(grid)
-	}
-	if animated {
+	gridGenerations[0] = Generation{0, grid}
 
-		time.Sleep(3 * time.Second)
-		util.ClearConsole()
-	}
-
-	var superGrid [][]int8
+	cols = len(grid[0])
+	rows = len(grid)
+	superGrid = grid
 	for index := 1; index <= generations; index++ {
 
 		superGrid = util.CopyGrid(grid)
-		cols := len(grid[0])
-		rows := len(grid)
+
 		for i := 0; i < rows; i++ {
 			for j := 0; j < cols; j++ {
-				lifeForms := 0
-				neighbors := make([]int8, 8)
-				neighbors[0] = grid[util.GetDivMod(i-1, rows)][util.GetDivMod(j-1, cols)]
-				neighbors[1] = grid[util.GetDivMod(i-1, rows)][j]
-				neighbors[2] = grid[util.GetDivMod(i-1, rows)][util.GetDivMod(j+1, cols)]
-
-				neighbors[3] = grid[i][util.GetDivMod(j-1, cols)]
-				neighbors[4] = grid[i][util.GetDivMod(j+1, cols)]
-
-				neighbors[5] = grid[util.GetDivMod(i+1, rows)][util.GetDivMod(j-1, cols)]
-				neighbors[6] = grid[util.GetDivMod(i+1, rows)][j]
-				neighbors[7] = grid[util.GetDivMod(i+1, rows)][util.GetDivMod(j+1, cols)]
-				for _, n := range neighbors {
-					if n == util.LIFE {
-						lifeForms++
-					}
-				}
-				if grid[i][j] == util.DECEASED && lifeForms == 3 {
-					superGrid[i][j] = util.LIFE
-				} else if lifeForms < 2 || lifeForms > 3 {
-					superGrid[i][j] = util.DECEASED
-				}
+				validateNeighbors(i, j, grid)
 			}
 		}
 		grid = util.CopyGrid(superGrid)
-		if animated {
-			time.Sleep(1 * time.Second)
-			util.ClearConsole()
-		}
-		if print {
-			fmt.Println("Generation: " + strconv.Itoa(index))
-			util.PrintGrid(grid)
-		} else {
-			if index == generations {
-				fmt.Println("Generation: " + strconv.Itoa(index))
-				util.PrintGrid(grid)
-			}
-		}
+
+		gridGenerations[index] = Generation{index, grid}
 
 	}
+	return gridGenerations
+}
+func validateNeighbors(i int, j int, grid [][]uint8) {
+	lifeForms := 0
+	neighbors := make([]uint8, 8)
+	neighbors[0] = grid[util.GetDivMod(i-1, rows)][util.GetDivMod(j-1, cols)]
+	neighbors[1] = grid[util.GetDivMod(i-1, rows)][j]
+	neighbors[2] = grid[util.GetDivMod(i-1, rows)][util.GetDivMod(j+1, cols)]
 
+	neighbors[3] = grid[i][util.GetDivMod(j-1, cols)]
+	neighbors[4] = grid[i][util.GetDivMod(j+1, cols)]
+
+	neighbors[5] = grid[util.GetDivMod(i+1, rows)][util.GetDivMod(j-1, cols)]
+	neighbors[6] = grid[util.GetDivMod(i+1, rows)][j]
+	neighbors[7] = grid[util.GetDivMod(i+1, rows)][util.GetDivMod(j+1, cols)]
+	for _, n := range neighbors {
+		if n == util.LIFE {
+			lifeForms++
+		}
+	}
+	if grid[i][j] == util.DECEASED && lifeForms == 3 {
+		superGrid[i][j] = util.LIFE
+	} else if lifeForms < 2 || lifeForms > 3 {
+		superGrid[i][j] = util.DECEASED
+	}
+}
+
+func printResult(matrix []Generation) {
+	var sb strings.Builder
+	for _, generation := range matrix {
+		if generation.id == 0 {
+			sb.WriteString("Init \n")
+
+			sb.WriteString(util.PrintGrid(generation.matrix))
+			continue
+		}
+		sb.WriteString("Generation: " + strconv.Itoa(generation.id) + "\n")
+		sb.WriteString(util.PrintGrid(generation.matrix))
+
+	}
+	fmt.Println(sb.String())
+}
+func printAnimatedResult(matrix []Generation) {
+	var sb strings.Builder
+	for _, generation := range matrix {
+		if generation.id == 0 {
+			sb.WriteString("Init \n")
+			sb.WriteString(util.PrintGrid(generation.matrix))
+			fmt.Println(sb.String())
+			time.Sleep(3 * time.Second)
+			util.ClearConsole()
+			sb.Reset()
+			continue
+		}
+		sb.WriteString("Generation: " + strconv.Itoa(generation.id) + "\n")
+		sb.WriteString(util.PrintGrid(generation.matrix))
+		fmt.Println(sb.String())
+		time.Sleep(1 * time.Second)
+		util.ClearConsole()
+		sb.Reset()
+	}
 }
 
 func getQualPol() [][]string {
@@ -95,8 +133,8 @@ func getQualPol() [][]string {
 	return array
 }
 
-func getTestData() [][]int8 {
-	return [][]int8{
+func getTestData() [][]uint8 {
+	return [][]uint8{
 		{'*', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '*', '.', '*', '.', '*', '.', '*', '.', '*', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
 		{'*', '*', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '*', '.', '*', '.', '*', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
 		{'*', '*', '*', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '*', '.', '.', '.', '.', '.', '*', '*', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '*', '.', '*', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.', '.'},
